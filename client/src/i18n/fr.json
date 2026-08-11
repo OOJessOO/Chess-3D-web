@@ -1,0 +1,46 @@
+{
+  "app": {
+    "title": "Échecs 3D",
+    "tagline": "Jouez aux échecs en trois dimensions"
+  },
+  "actions": {
+    "newGame": "Nouvelle partie",
+    "newGameHint": "Démarre une nouvelle partie avec un nouvel échiquier",
+    "resetView": "Réinitialiser la caméra",
+    "language": "Langue",
+    "close": "Fermer"
+  },
+  "game": {
+    "turn": "Tour",
+    "white": "Blancs",
+    "black": "Noirs",
+    "whiteToMove": "Aux blancs de jouer",
+    "blackToMove": "Aux noirs de jouer",
+    "inCheck": "Échec !",
+    "moves": "Coups",
+    "captured": "Prises",
+    "result": "Résultat",
+    "status": {
+      "in-progress": "En cours",
+      "white": "Les blancs gagnent",
+      "black": "Les noirs gagnent",
+      "stalemate": "Pat",
+      "threefold-repetition": "Nulle par triple répétition",
+      "insufficient-material": "Nulle par matériel insuffisant",
+      "draw": "Nulle"
+    }
+  },
+  "promotion": {
+    "title": "Promouvoir votre pion",
+    "queen": "Dame",
+    "rook": "Tour",
+    "bishop": "Fou",
+    "knight": "Cavalier"
+  },
+  "errors": {
+    "loadGame": "Impossible de charger la partie. Le serveur est-il démarré ?",
+    "move": "Ce coup n'est pas autorisé",
+    "noGame": "Aucune partie trouvée"
+  },
+  "loading": "Démarrage de la partie..."
+}

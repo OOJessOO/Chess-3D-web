@@ -1,0 +1,46 @@
+{
+  "app": {
+    "title": "Chess 3D",
+    "tagline": "Play chess in three dimensions"
+  },
+  "actions": {
+    "newGame": "New game",
+    "newGameHint": "Starts a fresh game with a new board",
+    "resetView": "Reset camera",
+    "language": "Language",
+    "close": "Close"
+  },
+  "game": {
+    "turn": "Turn",
+    "white": "White",
+    "black": "Black",
+    "whiteToMove": "White to move",
+    "blackToMove": "Black to move",
+    "inCheck": "Check!",
+    "moves": "Moves",
+    "captured": "Captured",
+    "result": "Result",
+    "status": {
+      "in-progress": "In progress",
+      "white": "White wins",
+      "black": "Black wins",
+      "stalemate": "Stalemate",
+      "threefold-repetition": "Draw by threefold repetition",
+      "insufficient-material": "Draw by insufficient material",
+      "draw": "Draw"
+    }
+  },
+  "promotion": {
+    "title": "Promote your pawn",
+    "queen": "Queen",
+    "rook": "Rook",
+    "bishop": "Bishop",
+    "knight": "Knight"
+  },
+  "errors": {
+    "loadGame": "Failed to load the game. Is the server running?",
+    "move": "This move is not allowed",
+    "noGame": "No game found"
+  },
+  "loading": "Starting game..."
+}
