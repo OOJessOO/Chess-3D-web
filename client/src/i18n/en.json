@@ -8,7 +8,8 @@
     "newGameHint": "Starts a fresh game with a new board",
     "resetView": "Reset camera",
     "language": "Language",
-    "close": "Close"
+    "close": "Close",
+    "menu": "Menu"
   },
   "game": {
     "turn": "Turn",
@@ -27,8 +28,29 @@
       "stalemate": "Stalemate",
       "threefold-repetition": "Draw by threefold repetition",
       "insufficient-material": "Draw by insufficient material",
-      "draw": "Draw"
+      "draw": "Draw",
+      "timeout": "Time's up!"
     }
+  },
+  "setup": {
+    "title": "New Game",
+    "opponent": "Opponent",
+    "twoPlayers": "2 Players",
+    "vsComputer": "vs Computer",
+    "difficulty": "Difficulty",
+    "playAs": "Play as",
+    "timeControl": "Time control",
+    "start": "Start game"
+  },
+  "ai": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "thinking": "Thinking..."
+  },
+  "timer": {
+    "whiteTimeout": "White ran out of time!",
+    "blackTimeout": "Black ran out of time!"
   },
   "promotion": {
     "title": "Promote your pawn",

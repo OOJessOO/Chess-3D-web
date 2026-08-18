@@ -62,11 +62,14 @@ class Game {
    */
   get boardGrid() {
     const grid = Array.from({ length: 8 }, () => Array(8).fill(null));
-    for (const { square, type, color } of this.chess.board()) {
-      if (!square) continue;
-      const col = square.charCodeAt(0) - 97;
-      const row = 8 - Number(square[1]);
-      grid[row][col] = `${color}${type}`;
+    const board = this.chess.board();
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const piece = board[row][col];
+        if (piece) {
+          grid[row][col] = `${piece.color}${piece.type}`;
+        }
+      }
     }
     return grid;
   }

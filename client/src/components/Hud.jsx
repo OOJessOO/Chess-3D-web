@@ -1,12 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-const PIECE_LABEL = { p: '♙', n: '♘', b: '♗', r: '♖', q: '♕', k: '♔' };
-
-/**
- * Overlay UI: title, turn/check/result, language toggle, new-game + reset buttons.
- */
-export default function Hud({ status, turn, inCheck, onNewGame, onResetView }) {
+export default function Hud({ status, turn, inCheck, onNewGame, onResetView, aiMode, aiThinking }) {
   const { t, i18n } = useTranslation();
 
   const changeLanguage = () => {
@@ -31,6 +26,7 @@ export default function Hud({ status, turn, inCheck, onNewGame, onResetView }) {
             <span className={`turn-dot ${turn}`} />
             <strong>{turn === 'w' ? t('game.whiteToMove') : t('game.blackToMove')}</strong>
             {inCheck && <span className="check-badge">{t('game.inCheck')}</span>}
+            {aiMode && aiThinking && <span className="check-badge" style={{ background: 'var(--blue)' }}>{t('ai.thinking')}</span>}
           </>
         ) : (
           <strong className="result">{resultText}</strong>

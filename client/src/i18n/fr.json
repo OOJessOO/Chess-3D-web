@@ -8,7 +8,8 @@
     "newGameHint": "Démarre une nouvelle partie avec un nouvel échiquier",
     "resetView": "Réinitialiser la caméra",
     "language": "Langue",
-    "close": "Fermer"
+    "close": "Fermer",
+    "menu": "Menu"
   },
   "game": {
     "turn": "Tour",
@@ -27,8 +28,29 @@
       "stalemate": "Pat",
       "threefold-repetition": "Nulle par triple répétition",
       "insufficient-material": "Nulle par matériel insuffisant",
-      "draw": "Nulle"
+      "draw": "Nulle",
+      "timeout": "Temps écoulé !"
     }
+  },
+  "setup": {
+    "title": "Nouvelle partie",
+    "opponent": "Adversaire",
+    "twoPlayers": "2 Joueurs",
+    "vsComputer": "vs Ordinateur",
+    "difficulty": "Difficulté",
+    "playAs": "Jouer avec",
+    "timeControl": "Contrôle du temps",
+    "start": "Commencer"
+  },
+  "ai": {
+    "easy": "Facile",
+    "medium": "Moyen",
+    "hard": "Difficile",
+    "thinking": "Réfléchit..."
+  },
+  "timer": {
+    "whiteTimeout": "Les blancs ont manqué de temps !",
+    "blackTimeout": "Les noirs ont manqué de temps !"
   },
   "promotion": {
     "title": "Promouvoir votre pion",

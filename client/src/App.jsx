@@ -1,10 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from './utils/api.js';
+import { getBestMove } from './utils/chessAI.js';
 import Scene from './components/Scene.jsx';
 import Hud from './components/Hud.jsx';
 import Sidebar from './components/Sidebar.jsx';
+import Timer from './components/Timer.jsx';
 import PromotionDialog from './components/PromotionDialog.jsx';
+import GameSetup from './components/GameSetup.jsx';
 
 const EMPTY_BOARD = Array.from({ length: 8 }, () => Array(8).fill(null));
 
@@ -26,6 +29,17 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [resetKey, setResetKey] = useState(0);
 
+  const [showSetup, setShowSetup] = useState(true);
+  const [gameConfig, setGameConfig] = useState(null);
+  const [aiMode, setAiMode] = useState(false);
+  const [aiColor, setAiColor] = useState('b');
+  const [aiLevel, setAiLevel] = useState(2);
+  const [aiThinking, setAiThinking] = useState(false);
+  const [timerActive, setTimerActive] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+
+  const aiThinkingRef = useRef(false);
+
   const applyState = useCallback((data) => {
     setBoard(data.board || EMPTY_BOARD);
     setTurn(data.turn);
@@ -37,42 +51,96 @@ export default function App() {
     setLastMove(data.moves?.[data.moves.length - 1] || null);
     setSelected(null);
     setPromotion(null);
+    if (data.status !== 'in-progress') {
+      setGameOver(true);
+      setTimerActive(false);
+    }
   }, []);
 
-  const startGame = useCallback(async () => {
+  const startGame = useCallback(async (config) => {
     setLoading(true);
     setError(null);
     setBoard(EMPTY_BOARD);
+    setGameOver(false);
+    setAiThinking(false);
+    aiThinkingRef.current = false;
+
+    if (config) {
+      setGameConfig(config);
+      setAiMode(config.mode === 'ai');
+      setAiColor(config.aiColor || 'b');
+      setAiLevel(config.aiLevel || 2);
+      setTimerActive(config.timeControl !== Infinity);
+      setShowSetup(false);
+    }
+
     try {
       const data = await api.createGame();
       setGameId(data.id);
       applyState(data);
+
+      const effectiveConfig = config || gameConfig;
+      if (effectiveConfig?.mode === 'ai' && effectiveConfig?.aiColor === 'w') {
+        setAiThinking(true);
+        aiThinkingRef.current = true;
+        setTimeout(() => {
+          makeAIMove(data.fen, data.id, 'w', effectiveConfig.aiLevel);
+        }, 300);
+      }
     } catch (err) {
       setError(t('errors.loadGame'));
     } finally {
       setLoading(false);
     }
-  }, [applyState, t]);
+  }, [applyState, t, gameConfig]);
 
   useEffect(() => {
     startGame();
-  }, [startGame]);
+  }, []);
+
+  const makeAIMove = useCallback(async (fen, gId, color, level) => {
+    try {
+      const move = getBestMove(fen, color, level || 2);
+      if (!move) {
+        setAiThinking(false);
+        aiThinkingRef.current = false;
+        return;
+      }
+      const data = await api.makeMove(gId, move);
+      applyState(data);
+      setAiThinking(false);
+      aiThinkingRef.current = false;
+    } catch (err) {
+      setAiThinking(false);
+      aiThinkingRef.current = false;
+    }
+  }, [applyState]);
 
   const sendMove = useCallback(
-    async (from, to, promotion) => {
+    async (from, to, promotionPiece) => {
       try {
-        const data = await api.makeMove(gameId, { from, to, promotion });
+        const data = await api.makeMove(gameId, { from, to, promotion: promotionPiece });
         applyState(data);
+
+        if (aiMode && data.status === 'in-progress' && data.turn === aiColor) {
+          setAiThinking(true);
+          aiThinkingRef.current = true;
+          setTimeout(() => {
+            makeAIMove(data.fen, gameId, aiColor, aiLevel);
+          }, 400);
+        }
       } catch (err) {
         setError(t('errors.move'));
       }
     },
-    [gameId, applyState, t]
+    [gameId, applyState, t, aiMode, aiColor, aiLevel, makeAIMove]
   );
 
   const onSquareClick = useCallback(
     (square) => {
-      if (loading || status !== 'in-progress' || promotion) return;
+      if (loading || status !== 'in-progress' || promotion || gameOver) return;
+      if (aiMode && turn === aiColor) return;
+      if (aiThinkingRef.current) return;
 
       const targets = legalMoves[square] || [];
       const isTarget = selected && legalMoves[selected]?.some((m) => m.to === square);
@@ -95,7 +163,7 @@ export default function App() {
         setSelected(null);
       }
     },
-    [loading, status, promotion, legalMoves, selected, sendMove]
+    [loading, status, promotion, legalMoves, selected, sendMove, gameOver, aiMode, turn, aiColor]
   );
 
   const onPromotionSelect = (piece) => {
@@ -103,48 +171,77 @@ export default function App() {
     sendMove(promotion.from, promotion.to, piece);
   };
 
+  const handleTimeUp = useCallback((color) => {
+    setGameOver(true);
+    setStatus(color === 'w' ? 'black' : 'white');
+  }, []);
+
   const resetView = () => setResetKey((k) => k + 1);
+
+  const handleSetupStart = (config) => {
+    startGame(config);
+  };
 
   return (
     <div className="app">
-      <Hud
-        status={status}
-        turn={turn}
-        inCheck={inCheck}
-        onNewGame={startGame}
-        onResetView={resetView}
-      />
+      {showSetup ? (
+        <GameSetup onStart={handleSetupStart} />
+      ) : (
+        <>
+          <Hud
+            status={status}
+            turn={turn}
+            inCheck={inCheck}
+            onNewGame={() => setShowSetup(true)}
+            onResetView={resetView}
+            aiMode={aiMode}
+            aiThinking={aiThinking}
+          />
 
-      <Sidebar captured={captured} moves={moves} />
+          <Sidebar captured={captured} moves={moves} />
 
-      <div className="scene-wrap">
-        <Scene
-          key={resetKey}
-          board={board}
-          moves={legalMoves}
-          selected={selected}
-          lastMove={lastMove}
-          onSquareClick={onSquareClick}
-        />
-        {loading && (
-          <div className="overlay">
-            <div className="spinner" />
-            <span>{t('loading')}</span>
+          {timerActive && gameConfig && (
+            <div className="timer-container">
+              <Timer
+                initialTime={gameConfig.timeControl}
+                activeTurn={turn}
+                gameOver={gameOver}
+                onTimeUp={handleTimeUp}
+                paused={aiThinking}
+              />
+            </div>
+          )}
+
+          <div className="scene-wrap">
+            <Scene
+              key={resetKey}
+              board={board}
+              moves={legalMoves}
+              selected={selected}
+              lastMove={lastMove}
+              onSquareClick={onSquareClick}
+            />
+            {loading && (
+              <div className="overlay">
+                <div className="spinner" />
+                <span>{t('loading')}</span>
+              </div>
+            )}
+            {error && (
+              <div className="overlay">
+                <span className="error">{error}</span>
+              </div>
+            )}
           </div>
-        )}
-        {error && (
-          <div className="overlay">
-            <span className="error">{error}</span>
-          </div>
-        )}
-      </div>
 
-      {promotion && (
-        <PromotionDialog
-          color={turn}
-          onSelect={onPromotionSelect}
-          onCancel={() => setPromotion(null)}
-        />
+          {promotion && (
+            <PromotionDialog
+              color={turn}
+              onSelect={onPromotionSelect}
+              onCancel={() => setPromotion(null)}
+            />
+          )}
+        </>
       )}
     </div>
   );
